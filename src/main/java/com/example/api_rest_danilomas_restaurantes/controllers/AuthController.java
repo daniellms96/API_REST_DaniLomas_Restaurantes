@@ -1,7 +1,5 @@
 package com.example.api_rest_danilomas_restaurantes.controllers;
 
-
-
 import com.example.api_rest_danilomas_restaurantes.DTO.LoginRequestDTO;
 import com.example.api_rest_danilomas_restaurantes.DTO.LoginResponseDTO;
 import com.example.api_rest_danilomas_restaurantes.DTO.UserRegisterDTO;

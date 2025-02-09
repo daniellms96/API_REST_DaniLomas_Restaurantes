@@ -21,47 +21,56 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController // Indica que esta clase es un controlador REST en Spring.
 public class AuthController {
-    @Autowired
+
+    @Autowired // Inyecta el repositorio de usuarios para interactuar con la base de datos.
     private UserEntityRepository userRepository;
-    @Autowired
+
+    @Autowired // Inyecta el codificador de contraseñas para encriptar y verificar contraseñas.
     private PasswordEncoder passwordEncoder;
-    @Autowired
+
+    @Autowired // Inyecta el proveedor de tokens JWT para generar y validar tokens.
     private JwtTokenProvider tokenProvider;
-    @Autowired
+
+    @Autowired // Inyecta el administrador de autenticación de Spring Security.
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/auth/register")
+    @PostMapping("/auth/register") // Endpoint para registrar un nuevo usuario.
     public ResponseEntity<UserEntity> save(@RequestBody UserRegisterDTO userDTO) {
+        // Crea una nueva entidad de usuario con los datos proporcionados en la solicitud.
         UserEntity userEntity = this.userRepository.save(
                 UserEntity.builder()
-                        .username(userDTO.getUsername())
-                        .password(passwordEncoder.encode(userDTO.getPassword()))
-                        .email(userDTO.getEmail())
-                        .authorities(List.of("ROLE_USER", "ROLE_ADMIN"))
+                        .username(userDTO.getUsername()) // Asigna el nombre de usuario.
+                        .password(passwordEncoder.encode(userDTO.getPassword())) // Codifica la contraseña antes de guardarla.
+                        .email(userDTO.getEmail()) // Asigna el email.
+                        .authorities(List.of("ROLE_USER", "ROLE_ADMIN")) // Asigna roles por defecto.
                         .build());
 
+        // Retorna un código 201 (CREATED) con el usuario registrado.
         return ResponseEntity.status(HttpStatus.CREATED).body(userEntity);
-
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/auth/login") // Endpoint para iniciar sesión.
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginDTO) {
         try {
+            // Crea un token de autenticación con las credenciales proporcionadas.
+            UsernamePasswordAuthenticationToken userPassAuthToken = new UsernamePasswordAuthenticationToken(
+                    loginDTO.getUsername(), loginDTO.getPassword());
 
-            //Validamos al usuario en Spring (hacemos login manualmente)
-            UsernamePasswordAuthenticationToken userPassAuthToken = new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
-            Authentication auth = authenticationManager.authenticate(userPassAuthToken);    //valida el usuario y devuelve un objeto Authentication con sus datos
-            //Obtenemos el UserEntity del usuario logueado
+            // Autentica al usuario en Spring Security.
+            Authentication auth = authenticationManager.authenticate(userPassAuthToken);
+
+            // Obtiene el usuario autenticado.
             UserEntity user = (UserEntity) auth.getPrincipal();
 
-            //Generamos un token con los datos del usuario (la clase tokenProvider ha hemos creado nosotros para no poner aquí todo el código
+            // Genera un token JWT para el usuario autenticado.
             String token = this.tokenProvider.generateToken(auth);
 
-            //Devolvemos un código 200 con el username y token JWT
+            // Retorna un código 200 (OK) con el nombre de usuario y el token JWT.
             return ResponseEntity.ok(new LoginResponseDTO(user.getUsername(), token));
-        }catch (Exception e) {  //Si el usuario no es válido, salta una excepción BadCredentialsException
+        } catch (Exception e) {
+            // Si las credenciales son incorrectas, devuelve un código 401 (UNAUTHORIZED).
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     Map.of(
                             "path", "/auth/login",
@@ -72,3 +81,4 @@ public class AuthController {
         }
     }
 }
+

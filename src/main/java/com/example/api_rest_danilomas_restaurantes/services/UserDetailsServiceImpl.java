@@ -7,18 +7,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service // Indica que esta clase es un servicio de Spring
 public class UserDetailsServiceImpl implements UserDetailsService {
-    private UserEntityRepository userRepository;
 
-    UserDetailsServiceImpl(UserEntityRepository userRepository, PasswordEncoderConfig passwordEncoderConfig) {
+    private final UserEntityRepository userRepository;
+
+    // Constructor con inyección de dependencias
+    public UserDetailsServiceImpl(UserEntityRepository userRepository, PasswordEncoderConfig passwordEncoderConfig) {
         this.userRepository = userRepository;
     }
 
+    // Carga un usuario por su nombre de usuario
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return this.userRepository.findByUsername(username).orElseThrow(
-                () -> new UsernameNotFoundException(username+" no encontrado")
-        );
+        return this.userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " no encontrado"));
     }
 }

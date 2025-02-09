@@ -18,26 +18,26 @@ import java.util.List;
 @Builder
 public class UserEntity implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Genera el ID automáticamente
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true) // Email debe ser único
     private String email;
-    @Column(unique = true)
+
+    @Column(unique = true) // Username debe ser único
     private String username;
+
     private String password;
 
-
-    @Builder.Default    //Para que Lombok con el patrón builder cree el ArrayList
-    @ElementCollection(fetch = FetchType.EAGER) // Indica que esta lista se almacena en una tabla separada, pero sin una relación
-    //@Enumerated(EnumType.STRING)
+    @Builder.Default
+    @ElementCollection(fetch = FetchType.EAGER) // Lista de roles del usuario
     @CollectionTable(name = "user_authorities", joinColumns = @JoinColumn(name = "user_id"))
     private List<String> authorities = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities.stream()
-                .map(authority -> new SimpleGrantedAuthority(authority))
+                .map(SimpleGrantedAuthority::new)
                 .toList();
     }
 

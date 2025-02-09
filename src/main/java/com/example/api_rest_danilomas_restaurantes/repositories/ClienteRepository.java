@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
+@Repository // Indica que esta interfaz es un componente de acceso a datos
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
-    Optional<Cliente>findByEmail(String email);
+
+    // Método para buscar un cliente por su email
+    Optional<Cliente> findByEmail(String email);
 }

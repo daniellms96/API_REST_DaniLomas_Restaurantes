@@ -14,23 +14,28 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+@Service // Indica que esta clase es un servicio de Spring
 public class ReservaService {
+
     @Autowired
     private ReservaRepository reservaRepository;
 
+    // Obtiene todas las reservas
     public List<Reserva> obtenerTodasLasReservas() {
         return reservaRepository.findAll();
     }
 
+    // Obtiene una reserva por su ID
     public Optional<Reserva> obtenerReservaPorId(Long id) {
         return reservaRepository.findById(id);
     }
 
+    // Obtiene reservas en un rango de fechas
     public List<Reserva> obtenerReservasPorRangoFechas(LocalDateTime inicio, LocalDateTime fin) {
         return reservaRepository.findByFechaHoraBetween(inicio, fin);
     }
 
+    // Crea una nueva reserva si la mesa está disponible
     public Reserva crearReserva(Reserva reserva) throws Exception {
         boolean mesaDisponible = verificarDisponibilidad(reserva.getMesa().getId(), reserva.getFechaHora());
         if (!mesaDisponible) {
@@ -39,22 +44,15 @@ public class ReservaService {
         return reservaRepository.save(reserva);
     }
 
-    //    public Reserva actualizarReserva(Long id, Reserva reserva) throws Exception {
-//        Reserva reservaExistente = reservaRepository.findById(id)
-//                .orElseThrow(() -> new Exception("Reserva con ID " + id + " no existe"));
-//        reservaExistente.setFechaHora(reserva.getFechaHora());
-//        reservaExistente.setCliente(reserva.getCliente());
-//        reservaExistente.setMesa(reserva.getMesa());
-//        reservaExistente.setNumeroPersonas(reserva.getNumeroPersonas());
-//
-//        return reservaRepository.save(reservaExistente);
-//    }
+    // Elimina una reserva por su ID
     public void eliminarReserva(Long id) {
         if (!reservaRepository.existsById(id)) {
             throw new EntityNotFoundException("No se encontró la reserva con ID: " + id);
         }
         reservaRepository.deleteById(id);
     }
+
+    // Lista reservas de un día específico y las convierte en DTOs
     public List<ReservaDTO> listarReservasPorFecha(LocalDate fecha) {
         LocalDateTime inicioDia = fecha.atStartOfDay();
         LocalDateTime finDia = fecha.atTime(LocalTime.MAX);
@@ -73,8 +71,8 @@ public class ReservaService {
                 .collect(Collectors.toList());
     }
 
+    // Verifica si una mesa está disponible en una fecha y hora específicas
     private boolean verificarDisponibilidad(Long mesaId, LocalDateTime fechaHora) {
         return !reservaRepository.existsByMesaAndFechaHora(mesaId, fechaHora);
     }
-
 }

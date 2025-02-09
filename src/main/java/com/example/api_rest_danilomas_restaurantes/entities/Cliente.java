@@ -15,30 +15,24 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "clientes")
+@Table(name = "clientes") // Define la tabla en la base de datos
 public class Cliente {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Genera el ID automáticamente
     private Long id;
 
     @NotBlank
     @Size(min = 3, message = "El nombre debe tener al menos 3 caracteres")
     private String nombre;
 
-    @Column(unique = true)
+    @Column(unique = true) // Evita duplicados en el email
     @Email(message = "El email debe tener un formato valido")
     private String email;
 
-    @Column(name = "telefono", length = 15)
+    @Column(length = 15) // Define la longitud máxima del teléfono
     private String telefono;
 
-    @OneToMany(
-            targetEntity = Reserva.class,
-            mappedBy = "cliente",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-            //fetch = FetchType.LAZY
-    )
-    @JsonIgnore
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // Evita la recursión infinita en las respuestas JSON
     private List<Reserva> reservas;
 }

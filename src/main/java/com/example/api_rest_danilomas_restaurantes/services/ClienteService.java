@@ -5,44 +5,54 @@ import com.example.api_rest_danilomas_restaurantes.repositories.ClienteRepositor
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service // Indica que esta clase es un servicio de Spring
 public class ClienteService {
+
     @Autowired
     private ClienteRepository clienteRepository;
 
-    public List<Cliente> obtenerTodosLosClientes(){
+    // Obtiene todos los clientes
+    public List<Cliente> obtenerTodosLosClientes() {
         return clienteRepository.findAll();
     }
 
-    public Optional<Cliente> obtenerClientesPorId(Long id){
+    // Obtiene un cliente por su ID
+    public Optional<Cliente> obtenerClientesPorId(Long id) {
         return clienteRepository.findById(id);
     }
 
-    public Cliente crearCliente(Cliente cliente) throws Exception{
-        if(clienteRepository.findByEmail(cliente.getEmail()).isPresent()){
-            throw new Exception("El cliente ya esta en uso");
+    // Crea un nuevo cliente si el email no está en uso
+    public Cliente crearCliente(Cliente cliente) throws Exception {
+        if (clienteRepository.findByEmail(cliente.getEmail()).isPresent()) {
+            throw new Exception("El cliente ya está en uso");
         }
         return clienteRepository.save(cliente);
     }
 
-    public Cliente actualizarCliente(Long id, Cliente cliente) throws Exception{
+    // Actualiza un cliente existente
+    public Cliente actualizarCliente(Long id, Cliente cliente) throws Exception {
         Cliente clienteExistente = clienteRepository.findById(id)
-                .orElseThrow(() -> new Exception("El cliente con ID" + id + "no existe"));
+                .orElseThrow(() -> new Exception("El cliente con ID " + id + " no existe"));
 
-        if(!clienteExistente.getEmail().equals(cliente.getEmail())&&
-                clienteRepository.findByEmail(cliente.getEmail()).isPresent()){
-            throw new Exception("El cliente ya esta en uso");
+        // Verifica si el email ya está en uso por otro cliente
+        if (!clienteExistente.getEmail().equals(cliente.getEmail()) &&
+                clienteRepository.findByEmail(cliente.getEmail()).isPresent()) {
+            throw new Exception("El cliente ya está en uso");
         }
+
+        // Actualiza los datos del cliente
         clienteExistente.setNombre(cliente.getNombre());
         clienteExistente.setEmail(cliente.getEmail());
         clienteExistente.setTelefono(cliente.getTelefono());
+
         return clienteRepository.save(clienteExistente);
     }
-    public void eliminarCliente(Long id){
+
+    // Elimina un cliente por su ID
+    public void eliminarCliente(Long id) {
         clienteRepository.deleteById(id);
     }
 }

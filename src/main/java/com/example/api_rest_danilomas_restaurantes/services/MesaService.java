@@ -8,39 +8,50 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service // Indica que esta clase es un servicio de Spring
 public class MesaService {
+
     @Autowired
     private MesaRepository mesaRepository;
 
-    public List<Mesa>obtenerTodasLasMesas(){
+    // Obtiene todas las mesas
+    public List<Mesa> obtenerTodasLasMesas() {
         return mesaRepository.findAll();
     }
 
-    public Optional<Mesa> obtenerMesaPorId(Long id){
+    // Obtiene una mesa por su ID
+    public Optional<Mesa> obtenerMesaPorId(Long id) {
         return mesaRepository.findById(id);
     }
 
-    public Mesa crearMesa(Mesa mesa) throws Exception{
-        if(mesaRepository.findByNumeroUnico(mesa.getNumeroUnico()).isPresent()){
-            throw new Exception("El numero unico (mesa) ya esta en uso");
+    // Crea una nueva mesa si el número único no está en uso
+    public Mesa crearMesa(Mesa mesa) throws Exception {
+        if (mesaRepository.findByNumeroUnico(mesa.getNumeroUnico()).isPresent()) {
+            throw new Exception("El número único (mesa) ya está en uso");
         }
         return mesaRepository.save(mesa);
     }
-    public Mesa actualizarMesa(Long id, Mesa mesa) throws Exception{
-        Mesa mesaEXistente = mesaRepository.findById(id)
+
+    // Actualiza una mesa existente
+    public Mesa actualizarMesa(Long id, Mesa mesa) throws Exception {
+        Mesa mesaExistente = mesaRepository.findById(id)
                 .orElseThrow(() -> new Exception("La mesa con ID " + id + " no existe"));
 
-        if(!mesaEXistente.getNumeroUnico().equals(mesa.getNumeroUnico()) &&
-                mesaRepository.findByNumeroUnico(mesa.getNumeroUnico()).isPresent()){
-            throw new Exception("El numero unico (mesa) ya esta en uso");
+        // Verifica si el número único ya está en uso por otra mesa
+        if (!mesaExistente.getNumeroUnico().equals(mesa.getNumeroUnico()) &&
+                mesaRepository.findByNumeroUnico(mesa.getNumeroUnico()).isPresent()) {
+            throw new Exception("El número único (mesa) ya está en uso");
         }
-        mesaEXistente.setNumeroUnico(mesa.getNumeroUnico());
-        mesaEXistente.setDescripcion(mesa.getDescripcion());
-        return mesaRepository.save(mesaEXistente);
-    }
-    public void eliminarMesa(Long id){
-        mesaRepository.deleteById(id);
+
+        // Actualiza los datos de la mesa
+        mesaExistente.setNumeroUnico(mesa.getNumeroUnico());
+        mesaExistente.setDescripcion(mesa.getDescripcion());
+
+        return mesaRepository.save(mesaExistente);
     }
 
+    // Elimina una mesa por su ID
+    public void eliminarMesa(Long id) {
+        mesaRepository.deleteById(id);
+    }
 }

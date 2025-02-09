@@ -14,29 +14,27 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "reservas")
+@Table(name = "reservas") // Define la tabla en la base de datos
 public class Reserva {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Genera el ID automáticamente
     private Long id;
 
-    //@Column(name = "fecha_hora", nullable = false)
     @NotNull(message = "La fecha y hora no pueden ser nulas")
     @FutureOrPresent(message = "La fecha de la reserva no puede ser en el pasado")
     private LocalDateTime fechaHora;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @JoinColumn(name = "cliente_id", nullable = false) // Relación con Cliente
     @NotNull(message = "El cliente es obligatorio")
     private Cliente cliente;
 
     @ManyToOne
-    @JoinColumn(name = "mesa_id", nullable = false)
+    @JoinColumn(name = "mesa_id", nullable = false) // Relación con Mesa
     @NotNull(message = "La mesa es obligatoria")
     private Mesa mesa;
 
-    @Column(name = "numero_personas", nullable = false)
+    @Column(name = "numero_personas", nullable = false) // Número mínimo de personas
     @Min(value = 1, message = "El número de personas debe ser al menos 1")
     private int numeroPersonas;
-
 }
